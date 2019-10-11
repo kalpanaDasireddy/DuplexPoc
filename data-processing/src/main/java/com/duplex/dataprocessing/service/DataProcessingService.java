@@ -87,6 +87,10 @@ public class DataProcessingService {
                     Collection<List<String[]>> subLists = lines.stream()
                             .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 2))
                             .values();
+		/**This code can be moved to scheduler running on multiple threads depending on the processor and number of
+                     * lines in csv file. Each  sublist can be submitted to a runnable and multiple runnables
+                     * can be executed by the executor.
+                     * **/
 
                     for (List<String[]> listOfLines : subLists) {
                         List<CsvLine> csvLines = new ArrayList<>(listOfLines.size());
