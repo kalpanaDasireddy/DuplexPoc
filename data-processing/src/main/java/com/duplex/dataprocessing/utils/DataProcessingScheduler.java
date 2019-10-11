@@ -8,10 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class DataProcessingScheduler {
     @Autowired
@@ -23,8 +20,25 @@ public class DataProcessingScheduler {
         List<Future<Boolean>> responseList = new ArrayList<>();
         for (List<String[]> listOfLines : csvFiles) {
             Future<Boolean> response = executorService.submit(new CsvLineThread(listOfLines, dataLoadId));
-            responseList.add(response);
+            responseList.add(response);        }
+        //wait for all threads to complete before shutting down executor. TODO: handle exceptions and return processing status false to be updated to database
+        Boolean tasksIncomplete = false;
+        while(tasksIncomplete) {
+            for (Future<Boolean> future : responseList) {
+                try {
+                    if (!future.get()) {
+                        tasksIncomplete = false;
+                        break;
+                    }
+                    else{
+                        tasksIncomplete = true;
+                    }
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                }
+            }
         }
+        executorService.shutdown();
     }
 
     class CsvLineThread implements Callable<Boolean>{
