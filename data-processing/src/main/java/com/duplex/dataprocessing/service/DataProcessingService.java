@@ -85,11 +85,12 @@ public class DataProcessingService {
                     lines.remove(0);
                     AtomicInteger counter = new AtomicInteger();
                     Collection<List<String[]>> subLists = lines.stream()
-                            .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 2))
+                            .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 10))
                             .values();
-		/**This code can be moved to scheduler running on multiple threads depending on the processor and number of
+		            /**This code can be moved to scheduler running on multiple threads depending on the processor and number of
                      * lines in csv file. Each  sublist can be submitted to a runnable and multiple runnables
-                     * can be executed by the executor.
+                     * can be executed by the executor. Code for scheduler can be found in
+                     * utils.DataProcessingScheduler class
                      * **/
 
                     for (List<String[]> listOfLines : subLists) {
